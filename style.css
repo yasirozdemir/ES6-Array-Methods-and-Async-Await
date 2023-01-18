@@ -6,3 +6,8 @@
 .founded {
   background-color: aqua;
 }
+
+#shoppingCart .modal-body ul li:hover {
+  background-color: rgba(233, 104, 104, 0.651);
+  cursor: pointer;
+}

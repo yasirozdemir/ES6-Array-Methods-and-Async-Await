@@ -98,10 +98,11 @@ const createShoppingCart = () => {
   shoppingCart.innerHTML = "";
   for (item of shoppingCartArray) {
     shoppingCart.innerHTML += `<li class="list-group-item d-flex">
-                                       <span>${item.title}</span>
+                                       <span class="user-select-none">${item.title}</span>
                                        <span class="ml-auto text-info">${item.price}</span>
                                    </li>`;
   }
+  deletableCartItems();
 };
 
 const clearCart = () => {
@@ -112,6 +113,18 @@ const clearCart = () => {
     item.remove();
   }
   numBooks.innerText = "0";
+};
+
+const deletableCartItems = () => {
+  let itemsToDelete = document.querySelectorAll(
+    "#shoppingCart .modal-body ul li"
+  );
+  for (item of itemsToDelete) {
+    item.addEventListener("click", (eventData) => {
+      eventData.target.remove();
+      numBooks.innerText--;
+    });
+  }
 };
 
 const search = () => {
