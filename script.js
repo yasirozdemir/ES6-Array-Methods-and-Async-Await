@@ -53,7 +53,6 @@ const renderBooks = (booksArray) => {
                                 Skip
                                 </button>
                             </div>
-                            <small class="text-muted">${asin}</small>
                         </div>
                     </div>
                 </div>
@@ -61,7 +60,6 @@ const renderBooks = (booksArray) => {
     })
     .join("");
   booksPlace.innerHTML = booksHTML;
-  // functionalButtonsForBooks();
 };
 
 const add = (ID, button) => {
