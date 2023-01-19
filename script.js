@@ -2,8 +2,10 @@ window.onload = () => {
   getBookData();
 };
 
+// this array is created to keep all book in the 'memory'
 let bookDataArray = [];
 
+// books taken from the API using async fetch
 const getBookData = async () => {
   try {
     const responseFromAPI = await fetch(
@@ -22,6 +24,7 @@ const getBookData = async () => {
 
 let shoppingCartArray = [];
 
+// rendering books to show them on the page
 let booksPlace = document.querySelector("#books-container > .row");
 const renderBooks = (booksArray) => {
   booksPlace.innerHTML = "";
@@ -62,6 +65,7 @@ const renderBooks = (booksArray) => {
   booksPlace.innerHTML = booksHTML;
 };
 
+// adding items to shopping cart
 const add = (ID, button) => {
   const bookToAdd = bookDataArray.find((book) => book.asin === ID);
   if (!shoppingCartArray.includes(bookToAdd)) shoppingCartArray.push(bookToAdd);
@@ -83,12 +87,14 @@ const createShoppingCart = () => {
   });
 };
 
+// skipping items
 const skip = (ID, button) => {
   const bookToSkip = bookDataArray.find((book) => book.asin === ID);
   // todo remove it from the bookDataArray array
   button.closest(".col-12").remove();
 };
 
+// search bar
 let foundedBooks = [];
 const search = (searchQuery) => {
   if (searchQuery.length >= 3) {
