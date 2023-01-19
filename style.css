@@ -11,3 +11,11 @@
   background-color: rgba(233, 104, 104, 0.651);
   cursor: pointer;
 }
+
+#books-container .card-body .btn-group button:nth-of-type(1):hover {
+  background-color: rgba(43, 179, 104, 0.925);
+}
+
+#books-container .card-body .btn-group button:nth-of-type(2):hover {
+  background-color: rgba(209, 26, 26, 0.651);
+}

@@ -1,3 +1,9 @@
+window.onload = () => {
+  getBookData();
+};
+
+let bookDataArray = [];
+
 const getBookData = async () => {
   try {
     const responseFromAPI = await fetch(
@@ -5,17 +11,23 @@ const getBookData = async () => {
     );
     const bookData = await responseFromAPI.json();
     renderBooks(bookData);
+    bookData.forEach((book) => {
+      bookDataArray.push(book);
+    });
   } catch (error) {
     // TODO; error alerts could be added
     console.error(error);
   }
 };
 
+let shoppingCartArray = [];
+
 let booksPlace = document.querySelector("#books-container > .row");
 const renderBooks = (booksArray) => {
+  booksPlace.innerHTML = "";
   const booksHTML = booksArray
     .map(({ asin, title, img, price, category }) => {
-      return `<div class="col-md-2">
+      return `<div class="col-12 col-sm-6 col-md-4 col-lg-3">
                 <div class="d-flex card mb-4 shadow-sm">
                     <img class="card-img-top w-100" src="${img}" alt="book image"/>
                     <div class="card-body p-2">
@@ -29,12 +41,14 @@ const renderBooks = (booksArray) => {
                                 <button
                                 type="button"
                                 class="btn btn-sm btn-outline-secondary"
+                                onclick="add('${asin}', this)"
                                 >
                                 Add To Cart
                                 </button>
                                 <button
                                 type="button"
                                 class="btn btn-sm btn-outline-secondary"
+                                onclick="skip('${asin}', this)"
                                 >
                                 Skip
                                 </button>
@@ -47,114 +61,47 @@ const renderBooks = (booksArray) => {
     })
     .join("");
   booksPlace.innerHTML = booksHTML;
-  functionalButtonsForBooks();
-  search();
+  // functionalButtonsForBooks();
 };
 
-const functionalButtonsForBooks = () => {
-  let addToCartButtonNode = document.querySelectorAll(
-    "#books-container .card-body .btn-group > button:nth-of-type(1)"
-  );
-  addToCartButtonNode.forEach((button) => {
-    button.addEventListener("click", (eventData) => {
-      let { target } = eventData;
-      let bookToBuy = target.closest(".card");
-      bookToBuy.classList.add("buy");
-    });
-  });
-
-  let skipButtonNode = document.querySelectorAll(
-    "#books-container .card-body .btn-group > button:nth-of-type(2)"
-  );
-  skipButtonNode.forEach((button) => {
-    button.addEventListener("click", (eventData) => {
-      let { target } = eventData;
-      let bookToBeRemoved = target.closest(".card").parentNode;
-      bookToBeRemoved.classList.remove("buy");
-      bookToBeRemoved.remove();
-    });
-  });
+const add = (ID, button) => {
+  const bookToAdd = bookDataArray.find((book) => book.asin === ID);
+  if (!shoppingCartArray.includes(bookToAdd)) shoppingCartArray.push(bookToAdd);
+  button.closest(".card").classList.toggle("buy");
 };
 
-let numBooks = document.querySelector(
-  "#shoppingCart .modal-body ol li span.text-success"
+let shoppingCart = document.querySelector("#shoppingCart .modal-body ul");
+let numberOfBooksToBuy = document.querySelector(
+  "#shoppingCart .modal-body ol li .text-success"
 );
 const createShoppingCart = () => {
-  let shoppingCart = document.querySelector("#shoppingCart .modal-body ul");
-
-  let shoppingCartArray = [];
-  let bookToBuy = document.getElementsByClassName("buy");
-  for (book of bookToBuy) {
-    let bookToBuyFeatures = {
-      title: book.childNodes[3].childNodes[1].childNodes[1].innerText,
-      price: book.childNodes[3].childNodes[1].childNodes[5].innerText,
-    };
-    shoppingCartArray.push(bookToBuyFeatures);
-  }
-
-  let numberOfBooks = shoppingCartArray.reduce((number) => number + 1, 0);
-  numBooks.innerText = numberOfBooks;
-
   shoppingCart.innerHTML = "";
-  for (item of shoppingCartArray) {
+
+  shoppingCartArray.forEach((bookToBuy) => {
     shoppingCart.innerHTML += `<li class="list-group-item d-flex">
-                                       <span class="user-select-none">${item.title}</span>
-                                       <span class="ml-auto text-info">${item.price}</span>
-                                   </li>`;
-  }
-  deletableCartItems();
-};
-
-const clearCart = () => {
-  let itemsToDelete = document.querySelectorAll(
-    "#shoppingCart .modal-body ul li"
-  );
-  for (item of itemsToDelete) {
-    item.remove();
-  }
-  numBooks.innerText = "0";
-};
-
-const deletableCartItems = () => {
-  let itemsToDelete = document.querySelectorAll(
-    "#shoppingCart .modal-body ul li"
-  );
-  for (item of itemsToDelete) {
-    item.addEventListener("click", (eventData) => {
-      eventData.target.remove();
-      numBooks.innerText--;
-    });
-  }
-};
-
-const search = () => {
-  let allBooksTitlesNode = document.querySelectorAll(
-    "#books-container .card .card-title"
-  );
-
-  titleArray = [];
-  for (titleHTML of allBooksTitlesNode) {
-    titleArray.push({
-      titleText: titleHTML.innerText.toLowerCase(),
-      titleNode: titleHTML,
-    });
-  }
-
-  let searchInput = document.getElementById("search-input");
-  searchInput.addEventListener("keyup", () => {
-    if (searchInput.value.length >= 3) {
-      let searchQuery = searchInput.value;
-      let founded = titleArray.filter((title) =>
-        title.titleText.includes(searchQuery)
-      );
-
-      for (item of founded) {
-        console.log(item.titleNode.closest(".card").classList.add("founded"));
-      }
-    }
+                                        <span class="user-select-none">${bookToBuy.title}</span>
+                                        <span class="ml-auto text-info">${bookToBuy.price}</span>
+                                    </li>`;
   });
 };
 
-window.onload = () => {
-  getBookData();
+const skip = (ID, button) => {
+  const bookToSkip = bookDataArray.find((book) => book.asin === ID);
+  // todo remove it from the bookDataArray array
+  button.closest(".col-12").remove();
+};
+
+let foundedBooks = [];
+const search = (searchQuery) => {
+  if (searchQuery.length >= 3) {
+    foundedBooks = bookDataArray.filter((book) =>
+      book.title.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
+    renderBooks(foundedBooks);
+    return;
+  } else {
+    renderBooks(bookDataArray);
+  }
+  foundedBooks = [];
 };
